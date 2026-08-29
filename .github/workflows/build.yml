@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '05 10 * * *'
+    - cron: '0 3 1 * *'  # le 1er de chaque mois à 3h00 UTC
   push:
     branches:
       - main
