@@ -52,7 +52,7 @@
     "gnome-shell-extension-background-logo",
     "fedora-flathub-remote"
   ],
-  "brew_enabled": true,
+  "brew_enabled": false,
   "signing_enabled": true,
   "github_user": "binnotkari-wq",
   "scan_customizations_carried": false,
