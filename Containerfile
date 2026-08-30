@@ -5,13 +5,6 @@ COPY system_files /system_files
 
 # Base Image
 FROM quay.io/fedora-ostree-desktops/silverblue:44
-COPY --from=ghcr.io/ublue-os/brew:latest /system_files /
-RUN --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
-    --mount=type=tmpfs,dst=/tmp \
-    /usr/bin/systemctl preset brew-setup.service && \
-    /usr/bin/systemctl preset brew-update.timer && \
-    /usr/bin/systemctl preset brew-upgrade.timer
 
 ## Other possible base images include:
 # FROM ghcr.io/ublue-os/bazzite:testing
