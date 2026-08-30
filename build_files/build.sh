@@ -51,6 +51,8 @@ dnf5 install -y \
     fzf \
     gamescope \
     glow \
+    gnome-shell-extension-dash-to-panel \
+    isomd5sum \
     just \
     kiwix-tools \
     libva-utils \
