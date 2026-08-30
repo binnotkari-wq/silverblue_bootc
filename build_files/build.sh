@@ -39,7 +39,7 @@ if ((${#packages_to_remove[@]})); then
 fi
 
 # Install packages
-dnf5 install -y \
+dnf5 install -y --setopt=install_weak_deps=False \
     aria2 \
     bat \
     btop \
@@ -66,6 +66,11 @@ dnf5 install -y \
     zenity \
     zoxide \
     ShellCheck
+
+### Installation de ryzenadj depuis le repo ublue
+dnf5 -y copr enable ublue-os/bazzite
+dnf5 install -y --setopt=install_weak_deps=False ryzenadj
+dnf5 -y copr disable ublue-os/bazzite
 
 ### améliorations des performances
 /ctx/tweaks.sh
