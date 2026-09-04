@@ -67,7 +67,7 @@ dnf5 install -y --setopt=install_weak_deps=False \
     zoxide \
     ShellCheck
 
-### Installation de ryzenadj depuis le repo ublue
+### Installation de ryzenadj depuis le repo ublue. Ryzenadj fonctionne à condition d'avoir désactivé secureboot.
 dnf5 -y copr enable ublue-os/bazzite
 dnf5 install -y --setopt=install_weak_deps=False ryzenadj
 dnf5 -y copr disable ublue-os/bazzite

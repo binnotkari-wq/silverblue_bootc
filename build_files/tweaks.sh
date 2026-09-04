@@ -29,7 +29,7 @@ EOF
 ### Les options de montage de / dans /etc/fstab étant ignorée par composefs
 mkdir -p /usr/lib/bootc/kargs.d
 cat > /usr/lib/bootc/kargs.d/10-btrfs-compress.toml << 'EOF'
-kargs = ["compress-force=zstd:3"]
+kargs = ["compress=zstd:1"]
 EOF
 
 ### Services système : désactivation classique
