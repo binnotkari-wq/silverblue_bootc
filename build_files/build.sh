@@ -41,7 +41,7 @@ fi
 
 # Install packages
 # Extraction de la liste JSON sous forme de tableau Bash
-mapfile -t PAQUETS < <(jq -r '.[]' "rpm.json")
+mapfile -t PAQUETS < <(jq -r '.[]' "/ctx/rpm.json")
 dnf5 install -y --setopt=install_weak_deps=False "${PAQUETS[@]}"
 
 ### Installation de ryzenadj depuis le repo ublue.
