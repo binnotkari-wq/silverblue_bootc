@@ -40,33 +40,9 @@ fi
 # fi
 
 # Install packages
-dnf5 install -y --setopt=install_weak_deps=False \
-    aria2 \
-    bat \
-    btop \
-    createrepo_c \
-    dialog \
-    distrobox \
-    duf \
-    fd-find \
-    fzf \
-    gamescope \
-    glow \
-    gnome-shell-extension-dash-to-panel \
-    isomd5sum \
-    just \
-    kiwix-tools \
-    libva-utils \
-    msedit \
-    powertop \
-    s-tui \
-    stress-ng \
-    tldr \
-    tmux \
-    yt-dlp \
-    zenity \
-    zoxide \
-    ShellCheck
+# Extraction de la liste JSON sous forme de tableau Bash
+mapfile -t PAQUETS < <(jq -r '.[]' "rpm.json")
+dnf5 install -y --setopt=install_weak_deps=False "${PAQUETS[@]}"
 
 ### Installation de ryzenadj depuis le repo ublue.
 ### -> NON car Ryzenadj ne fonctionne pas lorsque Secure Boot est activé. Ryzenadj ne sera donc pas utilisé.
