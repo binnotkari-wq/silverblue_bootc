@@ -1,6 +1,6 @@
 # Custom Fedora Silverblue Image
 
-Build OCI and ISO image from Fedora Silverblue, with tweaks and additionals softwares.
+Build bootc OCI and ISO image from Fedora Silverblue, with tweaks and additionals softwares. The original image is modified only by integrating what would have required rpm-ostree layering. Nothing is removed, to keep the base guaranteed by Fedora. All other things that don't involve changing the immutable part of the OS (settings in /etc, data provisioned in /var) can easily be done on the running system, as intended.
 
 This repository builds a custom bootc image on GitHub Actions.
 
@@ -36,19 +36,28 @@ Selected packages are what this repo will attempt to add, even if some are alrea
 - `fzf`
 - `gamescope`
 - `glow`
+- `isomd5sum`
 - `just`
 - `kiwix-tools`
 - `libva-utils`
+- `lm_sensors`
+- `mc`
 - `msedit`
 - `powertop`
 - `s-tui`
+- `ShellCheck`
+- `smartmontools`
 - `stress-ng`
 - `tldr`
 - `tmux`
 - `yt-dlp`
 - `zenity`
 - `zoxide`
-- `ShellCheck`
+
+## Tweaks
+
+- setting BTRFS compression in kargs, because mounting options for / are not applied in ComposeFS. See : [gitlab.com/fedora/ostree/sig — work item #72](https://gitlab.com/fedora/ostree/sig/-/work_items/72).
+- enabling graphical boot on Radeon Vega integrated GPU : amdgpu driver included in initramfs, and requires 'UseSimpledrm=1' in '/etc/plymouth/plymouthd.conf' (upstream behavior change : "Don't use simpledrm together with LUKS")  to return to the bgrt display at the LUKS prompt.
 
 ## COPR Repositories
 
@@ -60,24 +69,11 @@ Selected packages are what this repo will attempt to add, even if some are alrea
 
 ## Removed Base Packages
 
-- `gnome-tour`
-- `gnome-software`
-- `gnome-software-rpm-ostree`
-- `qt5-qtbase`
-- `qt6-qtbase`
-- `orca`
-- `speech-dispatcher`
-- `speech-dispatcher-espeak-ng`
-- `speech-dispatcher-libs`
-- `speech-dispatcher-utils`
-- `espeak-ng`
-- `gnome-classic-session`
-- `gnome-shell-extension-apps-menu`
-- `gnome-shell-extension-launch-new-instance`
-- `gnome-shell-extension-places-menu`
-- `gnome-shell-extension-window-list`
-- `gnome-shell-extension-background-logo`
-- `fedora-flathub-remote`
+- None.
+
+## Disabled Services
+
+- None.
 
 ## Using The Image
 
