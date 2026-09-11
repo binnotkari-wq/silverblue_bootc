@@ -6,37 +6,38 @@ if [ -d /ctx/system_files ]; then
     cp -avf /ctx/system_files/. /
 fi
 
+### On ne supprime rien de l'image Fedora, pour minimiser les modifications au container garanti fonctionnel par Fedora.
 # Remove packages from the base image when they are installed
-packages_to_remove=()
-for pkg in \
-    gnome-tour \
-    gnome-software \
-    gnome-software-rpm-ostree \
-    qt5-qtbase \
-    qt6-qtbase \
-    orca \
-    speech-dispatcher \
-    speech-dispatcher-espeak-ng \
-    speech-dispatcher-libs \
-    speech-dispatcher-utils \
-    espeak-ng \
-    gnome-classic-session \
-    gnome-shell-extension-apps-menu \
-    gnome-shell-extension-launch-new-instance \
-    gnome-shell-extension-places-menu \
-    gnome-shell-extension-window-list \
-    gnome-shell-extension-background-logo \
-    fedora-flathub-remote
-do
-    if rpm -q --quiet "$pkg"; then
-        packages_to_remove+=("$pkg")
-    else
-        echo "Skipping removal of $pkg because it is not installed in the base image."
-    fi
-done
-if ((${#packages_to_remove[@]})); then
-    dnf5 remove -y "${packages_to_remove[@]}"
-fi
+# packages_to_remove=()
+# for pkg in \
+#     gnome-tour \
+#     gnome-software \
+#     gnome-software-rpm-ostree \
+#     qt5-qtbase \
+#     qt6-qtbase \
+#     orca \
+#     speech-dispatcher \
+#     speech-dispatcher-espeak-ng \
+#     speech-dispatcher-libs \
+#     speech-dispatcher-utils \
+#     espeak-ng \
+#     gnome-classic-session \
+#     gnome-shell-extension-apps-menu \
+#     gnome-shell-extension-launch-new-instance \
+#     gnome-shell-extension-places-menu \
+#     gnome-shell-extension-window-list \
+#     gnome-shell-extension-background-logo \
+#     fedora-flathub-remote
+# do
+#     if rpm -q --quiet "$pkg"; then
+#         packages_to_remove+=("$pkg")
+#     else
+#         echo "Skipping removal of $pkg because it is not installed in the base image."
+#     fi
+# done
+# if ((${#packages_to_remove[@]})); then
+#     dnf5 remove -y "${packages_to_remove[@]}"
+# fi
 
 # Install packages
 dnf5 install -y --setopt=install_weak_deps=False \
@@ -67,10 +68,11 @@ dnf5 install -y --setopt=install_weak_deps=False \
     zoxide \
     ShellCheck
 
-### Installation de ryzenadj depuis le repo ublue. Ryzenadj fonctionne à condition d'avoir désactivé secureboot.
-dnf5 -y copr enable ublue-os/bazzite
-dnf5 install -y --setopt=install_weak_deps=False ryzenadj
-dnf5 -y copr disable ublue-os/bazzite
+### Installation de ryzenadj depuis le repo ublue.
+### -> NON car Ryzenadj ne fonctionne pas lorsque Secure Boot est activé. Ryzenadj ne sera donc pas utilisé.
+# dnf5 -y copr enable ublue-os/bazzite
+# dnf5 install -y --setopt=install_weak_deps=False ryzenadj
+# dnf5 -y copr disable ublue-os/bazzite
 
 ### améliorations des performances
 /ctx/tweaks.sh
