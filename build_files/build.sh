@@ -27,7 +27,7 @@ EOF
 # Plymouth (thème bgrt) ne s'affiche plus au prompt LUKS, remplacé par une invite texte.
 # Référence : https://github.com/ublue-os/bazzite/blob/main/build_files/build-initramfs
 echo 'force_drivers+=" amdgpu "' > /etc/dracut.conf.d/amdgpu-early.conf
-cat <<'EOF' | sudo tee "/etc/plymouth/plymouthd.conf" >/dev/null
+cat <<'EOF' | tee "/etc/plymouth/plymouthd.conf" >/dev/null
 [Daemon]
 Theme=bgrt
 UseSimpledrm=1
