@@ -6,67 +6,41 @@ if [ -d /ctx/system_files ]; then
     cp -avf /ctx/system_files/. /
 fi
 
-### On ne supprime rien de l'image Fedora, pour minimiser les modifications au container garanti fonctionnel par Fedora.
-# Remove packages from the base image when they are installed
-# packages_to_remove=()
-# for pkg in \
-#     gnome-tour \
-#     gnome-software \
-#     gnome-software-rpm-ostree \
-#     qt5-qtbase \
-#     qt6-qtbase \
-#     orca \
-#     speech-dispatcher \
-#     speech-dispatcher-espeak-ng \
-#     speech-dispatcher-libs \
-#     speech-dispatcher-utils \
-#     espeak-ng \
-#     gnome-classic-session \
-#     gnome-shell-extension-apps-menu \
-#     gnome-shell-extension-launch-new-instance \
-#     gnome-shell-extension-places-menu \
-#     gnome-shell-extension-window-list \
-#     gnome-shell-extension-background-logo \
-#     fedora-flathub-remote
-# do
-#     if rpm -q --quiet "$pkg"; then
-#         packages_to_remove+=("$pkg")
-#     else
-#         echo "Skipping removal of $pkg because it is not installed in the base image."
-#     fi
-# done
-# if ((${#packages_to_remove[@]})); then
-#     dnf5 remove -y "${packages_to_remove[@]}"
-# fi
-
 # Install packages
 # Extraction de la liste JSON sous forme de tableau Bash
-mapfile -t PAQUETS < <(jq -r '.[]' "/ctx/rpm.json")
+mapfile -t PAQUETS < <(jq -r '.[]' "/ctx/rpm_install_list.json")
 dnf5 install -y --setopt=install_weak_deps=False "${PAQUETS[@]}"
-
-### Installation de ryzenadj depuis le repo ublue.
-### -> NON car Ryzenadj ne fonctionne pas lorsque Secure Boot est activé. Ryzenadj ne sera donc pas utilisé.
-# dnf5 -y copr enable ublue-os/bazzite
-# dnf5 install -y --setopt=install_weak_deps=False ryzenadj
-# dnf5 -y copr disable ublue-os/bazzite
-
-### améliorations des performances
-/ctx/tweaks.sh
 
 # Clean dnf metadata before the final image is committed
 dnf5 autoremove -y
 dnf5 clean all
 
-### Nettoyage des résidus runtime-only (/run, /tmp) et /var non déclaré (lint bootc)
+# Mise en place compression BTRFS."
+# Karg : compression btrfs zstd:1 (Les options de montage de / dans /etc/fstab étant ignorée par composefs - valade pour toutes les Fedora Atomic et autres dérivés bootc)
+mkdir -p /usr/lib/bootc/kargs.d
+cat > /usr/lib/bootc/kargs.d/10-btrfs-compress.toml << 'EOF'
+kargs = ["compress=zstd:1"]
+EOF
+
+# Corrige un bug apparu sur les GPU AMD intégrés de la famille Vega (ex: Picasso/Vega 8,
+# présent sur le Dell 5485) suite à une mise à jour majeure de kernel : le splash graphique
+# Plymouth (thème bgrt) ne s'affiche plus au prompt LUKS, remplacé par une invite texte.
+# Référence : https://github.com/ublue-os/bazzite/blob/main/build_files/build-initramfs
+echo 'force_drivers+=" amdgpu "' > /etc/dracut.conf.d/amdgpu-early.conf
+cat <<'EOF' | sudo tee "/etc/plymouth/plymouthd.conf" >/dev/null
+[Daemon]
+Theme=bgrt
+UseSimpledrm=1
+EOF
+
+# make root's home (sinon il y a une petite erreur dracut à cause du lien symbolique qui n'est pas encore établi dans le container)
+mkdir -p /var/roothome
+
+# Nettoyage des résidus runtime-only (/run, /tmp) et /var non déclaré (lint bootc)
 rm -rf /run/dnf /run/selinux-policy /tmp/*
 rm -rf /var/lib/dnf/*
 
-### Régénération finale de l'initramfs (doit être la toute dernière étape)
-### Fix : Plymouth non affiché sur hardware réel (AMD Vega notamment) sans cette étape explicite
-### Référence : https://github.com/ublue-os/bazzite/blob/main/build_files/build-initramfs
-# make root's home (sinon il y a une petite erreur dracut à cause du lien symbolique qui n'est pas encore établi dans le container)
-mkdir -p /var/roothome
-echo 'force_drivers+=" amdgpu "' > /etc/dracut.conf.d/amdgpu-early.conf
+# Régénération finale de l'initramfs (pour inclure kargs, pilote amd, config pluymouth)
 QUALIFIED_KERNEL="$(dnf5 repoquery --installed --queryformat='%{evr}.%{arch}' kernel)"
 /usr/bin/dracut --no-hostonly --kver "$QUALIFIED_KERNEL" --reproducible --zstd -v --add ostree -f "/usr/lib/modules/$QUALIFIED_KERNEL/initramfs.img"
 chmod 0600 /usr/lib/modules/"$QUALIFIED_KERNEL"/initramfs.img

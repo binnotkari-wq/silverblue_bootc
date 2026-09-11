@@ -25,13 +25,6 @@ swap-priority=100
 zram-size=100 / 100 * ram
 EOF
 
-### Kernel arg : compression btrfs forcée en zstd:3
-### Les options de montage de / dans /etc/fstab étant ignorée par composefs
-mkdir -p /usr/lib/bootc/kargs.d
-cat > /usr/lib/bootc/kargs.d/10-btrfs-compress.toml << 'EOF'
-kargs = ["compress=zstd:1"]
-EOF
-
 ### Services système : désactivation classique
 systemctl disable \
   NetworkManager-wait-online.service \
