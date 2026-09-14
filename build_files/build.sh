@@ -15,17 +15,14 @@ dnf5 install -y --setopt=install_weak_deps=False "${PAQUETS[@]}"
 dnf5 autoremove -y
 dnf5 clean all
 
-# Mise en place compression BTRFS."
 # Karg : compression btrfs zstd:1 (Les options de montage de / dans /etc/fstab étant ignorée par composefs - valade pour toutes les Fedora Atomic et autres dérivés bootc)
 mkdir -p /usr/lib/bootc/kargs.d
 cat > /usr/lib/bootc/kargs.d/10-btrfs-compress.toml << 'EOF'
 kargs = ["compress=zstd:1"]
 EOF
 
-# Corrige un bug apparu sur les GPU AMD intégrés de la famille Vega (ex: Picasso/Vega 8,
-# présent sur le Dell 5485) suite à une mise à jour majeure de kernel : le splash graphique
-# Plymouth (thème bgrt) ne s'affiche plus au prompt LUKS, remplacé par une invite texte.
-# Référence : https://github.com/ublue-os/bazzite/blob/main/build_files/build-initramfs
+# Corrige un bug apparu sur les GPU AMD intégrés de la famille Vega : Plymouth ne s'affiche 
+# plus au prompt LUKS. https://github.com/ublue-os/bazzite/blob/main/build_files/build-initramfs
 echo 'force_drivers+=" amdgpu "' > /etc/dracut.conf.d/amdgpu-early.conf
 cat <<'EOF' | tee "/etc/plymouth/plymouthd.conf" >/dev/null
 [Daemon]
